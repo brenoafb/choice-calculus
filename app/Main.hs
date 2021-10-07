@@ -8,21 +8,18 @@ import VarList
 import Data.Data
 import Data.Typeable
 
-data Food = Steak | Pasta | Fries | Cake
+data Food = Steak | Pasta | Fries | Cake | Sherry
   deriving (Eq, Show, Data, Typeable)
 
 type Menu = VList Food
 
-dessert :: Menu
-dessert = atomic "Dessert" ["yes","no"] [vsingle Cake, vempty]
+dessert = opt "Dessert" Cake
+meat  = "meat"  <: vlist [Steak, Fries]
+pasta = "pasta" <: Pasta `vcons` dessert
+menu  = alt "Main" [meat, pasta]
 
-menu :: Menu
-menu = atomic "Main" ["meat","pasta"]
-              [vlist [Steak, Fries], Pasta `vcons` dessert]
-
-menu' :: Menu
-menu' = atomic "Main" ["meat","pasta"]
-               [vlist [Steak, Fries], Pasta `vcons` dessert]
+aperitif :: VList Food
+aperitif = opt "Drink" Sherry
 
 main :: IO ()
 main = putStrLn "Hello world"

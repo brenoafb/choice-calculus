@@ -55,6 +55,12 @@ dimA = Dim "A" ["a1", "a2"]
 chcA :: [V a] -> V a
 chcA = Chc "A"
 
+dimB :: V a -> V a
+dimB = Dim "B" ["b1", "b2"]
+
+chcB :: [V a] -> V a
+chcB = Chc "B"
+
 alt :: Dim -> [Tagged a] -> V a
 alt d tvs = atomic d ts vs
   where (ts, vs) = unzip tvs
