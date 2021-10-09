@@ -37,6 +37,9 @@ bindV :: V a -> (a -> V b) -> V b
 (Dim d ts v) `bindV` f = Dim d ts $ (v >>= f)
 (Chc d cs)   `bindV` f = Chc d (map (>>= f) cs)
 
+decide :: Data a => [(Dim, Tag)] -> V a -> V a
+decide ds v = foldr (\(d, t) -> eliminate d t) v ds
+
 eliminate :: Data a => Dim -> Tag -> V a -> V a
 eliminate d t = transform f
   where f x@(Dim d' ts v)
