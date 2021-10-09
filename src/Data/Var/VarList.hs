@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-module VarList where
+module Data.Var.VarList where
 
-import Var
+import Data.Var
 
 import Data.Generics
 import Control.Monad (join)

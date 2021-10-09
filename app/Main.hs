@@ -2,8 +2,8 @@
 
 module Main where
 
-import Var
-import VarList
+import Data.Var
+import Data.Var.VarList
 
 import Data.Data
 import Data.Typeable
@@ -22,4 +22,4 @@ aperitif :: VList Food
 aperitif = opt "Drink" Sherry
 
 main :: IO ()
-main = putStrLn "Hello world"
+main = print menu

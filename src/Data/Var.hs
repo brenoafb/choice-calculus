@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE FlexibleContexts #-}
-module Var where
+module Data.Var where
 
 import Data.List (elemIndex, intersperse)
 import Data.Generics

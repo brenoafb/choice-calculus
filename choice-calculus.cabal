@@ -25,9 +25,9 @@ source-repository head
 
 library
   exposed-modules:
+      Data.Var
+      Data.Var.VarList
       Lib
-      Var
-      VarList
   other-modules:
       Paths_choice_calculus
   hs-source-dirs:
