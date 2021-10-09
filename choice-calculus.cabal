@@ -34,6 +34,8 @@ library
       src
   build-depends:
       base >=4.7 && <5
+    , syb
+    , uniplate
   default-language: Haskell2010
 
 executable choice-calculus-exe
@@ -46,6 +48,8 @@ executable choice-calculus-exe
   build-depends:
       base >=4.7 && <5
     , choice-calculus
+    , syb
+    , uniplate
   default-language: Haskell2010
 
 test-suite choice-calculus-test
@@ -59,4 +63,6 @@ test-suite choice-calculus-test
   build-depends:
       base >=4.7 && <5
     , choice-calculus
+    , syb
+    , uniplate
   default-language: Haskell2010

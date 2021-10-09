@@ -1,6 +1,10 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE FlexibleContexts #-}
 module Var where
 
-import Data.List (intersperse)
+import Data.List (elemIndex, intersperse)
+import Data.Generics
+import Data.Generics.Uniplate.Data
 
 type Dim = String
 type Tag = String
@@ -14,6 +18,7 @@ t <: v = (t, v)
 data V a = Obj a
          | Dim Dim [Tag] (V a)
          | Chc Dim [V a]
+         deriving (Data, Typeable)
 
 instance Show a => Show (V a) where
   show (Obj x) = show x
@@ -32,15 +37,25 @@ bindV :: V a -> (a -> V b) -> V b
 (Dim d ts v) `bindV` f = Dim d ts $ (v >>= f)
 (Chc d cs)   `bindV` f = Chc d (map (>>= f) cs)
 
+eliminate :: Data a => Dim -> Tag -> V a -> V a
+eliminate d t = transform f
+  where f x@(Dim d' ts v)
+          | d /= d' = x
+          | otherwise =
+            case elemIndex t ts of
+              Nothing -> x
+              Just i  -> go i v
+        f x = x
+        go i x@(Chc d' vs)
+          | d /= d' = x
+          | otherwise = vs !! i
+        go i x = x
+
 instance Applicative V where
   pure = Obj
   mf <*> mx = mf `bindV` (\f -> mx `bindV` (\x -> pure $ f x))
 
 instance Monad V where
-  -- return :: a -> V a
-  return = Obj
-
-  -- (>>=) :: V a -> (a -> V b) -> V b
   (>>=) = bindV
 
 liftV :: (a -> V b) -> V a -> V b

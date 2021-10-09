@@ -1,7 +1,9 @@
+{-# LANGUAGE DeriveDataTypeable #-}
 module VarList where
 
 import Var
 
+import Data.Generics
 import Control.Monad (join)
 
 type VList a = V (List a)
@@ -9,7 +11,7 @@ type VList a = V (List a)
 data List a = Cons a (List a)
             | Empty
             | VList (VList a)
-            deriving (Show)
+            deriving (Data, Typeable, Show)
 
 list :: List a -> VList a
 list = Obj
