@@ -57,7 +57,6 @@ sumL = fold (+) 0
 vsum :: Num a => VList a -> V a
 vsum = join . fmap sumL
 
-
 cat :: List a -> List a -> List a
 cat Empty      r = r
 cat (Cons a l) r = Cons a (l `cat` r)
@@ -90,9 +89,20 @@ vnth n = liftV (nth n)
 filterL :: (a -> Bool) -> List a -> List a
 filterL p Empty = Empty
 filterL p (Cons x xs)
-  | p x = Cons x (filterL p xs)
+  | p x       = Cons x $ filterL p xs
   | otherwise = filterL p xs
-filterL p (VList vl) = VList $ vl >>= (pure . rev)
+filterL p (VList vl) = VList $ vl >>= (pure . filterL p)
 
 vfilter :: (a -> Bool) -> VList a -> VList a
-vfilter p vs = (vs >>= (pure . rev))
+vfilter p vs = vs >>= (pure . filterL p)
+
+zipL :: List a -> List b -> List (a,b)
+zipL Empty _ = Empty
+zipL _ Empty = Empty
+zipL (Cons x xs) (Cons y ys) = Cons (x, y) $ zipL xs ys
+zipL (VList xs)  (VList ys)  = VList $ zipL <$> xs <*> ys
+zipL xs (VList ys)  = VList $ ys >>= (pure . zipL xs)
+zipL (VList xs)  ys = VList $ xs >>= (\xs' -> pure $ zipL xs' ys)
+
+vzip :: VList a -> VList b -> VList (a, b)
+vzip xs ys = zipL <$> xs <*> ys
