@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 module Data.Var where
 
-import Data.List (elemIndex, intersperse)
+import Data.List (elemIndex, intercalate)
 import Data.Generics
 import Data.Generics.Uniplate.Data
 
@@ -20,12 +20,20 @@ data V a = Obj a
          | Chc Dim [V a]
          deriving (Data, Typeable)
 
+instance Eq a => Eq (V a) where
+  (Obj x) == (Obj y) = x == y
+  (Dim d ts v) == (Dim d' ts' v')
+    | d == d' && ts == ts' = v == v'
+  (Chc d vs) == (Chc d' vs')
+    | d == d' = vs == vs'
+  _ == _ = False
+
 instance Show a => Show (V a) where
   show (Obj x) = show x
   show (Dim d ts v) =
-    "dim " <> d <> "<" <> (concat $ intersperse ", " ts) <> "> in " <> show v
+    "dim " <> d <> "<" <> intercalate ", " ts <> "> in " <> show v
   show (Chc d vs) =
-    d <> "<" <> (concat . intersperse ", " $ map show vs) <> ">"
+    d <> "<" <> intercalate ", " (map show vs) <> ">"
 
 instance Functor V where
   fmap f (Obj x) = Obj $ f x
@@ -34,11 +42,11 @@ instance Functor V where
 
 bindV :: V a -> (a -> V b) -> V b
 (Obj xa)     `bindV` f = f xa
-(Dim d ts v) `bindV` f = Dim d ts $ (v >>= f)
+(Dim d ts v) `bindV` f = Dim d ts (v >>= f)
 (Chc d cs)   `bindV` f = Chc d (map (>>= f) cs)
 
 decide :: Data a => [(Dim, Tag)] -> V a -> V a
-decide ds v = foldr (\(d, t) -> eliminate d t) v ds
+decide ds v = foldr (uncurry eliminate) v ds
 
 eliminate :: Data a => Dim -> Tag -> V a -> V a
 eliminate d t = transform f
@@ -56,13 +64,13 @@ eliminate d t = transform f
 
 instance Applicative V where
   pure = Obj
-  mf <*> mx = mf `bindV` (\f -> mx `bindV` (\x -> pure $ f x))
+  mf <*> mx = mf `bindV` (\f -> mx `bindV` (pure . f))
 
 instance Monad V where
   (>>=) = bindV
 
 liftV :: (a -> V b) -> V a -> V b
-liftV = flip (>>=)
+liftV = (=<<)
 
 atomic :: Dim -> [Tag] -> [V a] -> V a
 atomic d ts cs = Dim d ts $ Chc d cs
